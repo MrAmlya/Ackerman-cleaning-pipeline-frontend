@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css'; // Add custom styles after bootstrap
-import Loader from './components/loader'; // Import the loader component
+import './App.css'; 
+import Loader from './components/loader';
 
 const App = () => {
   const [inputCategory, setInputCategory] = useState("");
@@ -25,6 +25,23 @@ const App = () => {
     }
 
     setLoading(false); // Hide loader when data is received
+  };
+
+  // Function to download CSV
+  const downloadCSV = (filename) => {
+    if (!filename) {
+      console.error("Filename is required to download the CSV.");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = `http://127.0.0.1:5000/${filename}`; // Update this URL based on your API endpoint for downloading CSV
+    // link.href = `${filename}`; // Update this URL based on your API endpoint for downloading CSV
+    link.setAttribute("download", filename);
+    // link.setAttribute("target", "_blank");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -71,6 +88,11 @@ const App = () => {
           <div className="result-container mt-4">
             <h2 className="text-center">Result</h2>
             <pre className="bg-light p-3 rounded shadow-sm">{JSON.stringify(result, null, 2)}</pre>
+            <button
+              className="btn btn-secondary mt-3"
+              onClick={() => downloadCSV(result.download_url)}>Download CSV
+            </button>
+            {/* <button onClick={downloadCSV} className="btn btn-success mt-3">Download CSV</button> */}
           </div>
         )
       )}
