@@ -9,13 +9,14 @@ const App = () => {
   const [inputString, setInputString] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false); // Loading state
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5000";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Show loader when the form is submitted
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/process-data", {
+      const response = await axios.post(`${API_BASE_URL}/api/process-data`, {
         inputCategory,
         inputString,
       });
@@ -35,7 +36,7 @@ const App = () => {
     }
 
     const link = document.createElement("a");
-    link.href = `http://127.0.0.1:5000/${filename}`; // Update this URL based on your API endpoint for downloading CSV
+    link.href = `${API_BASE_URL}/${filename}`; // Update this URL based on your API endpoint for downloading CSV
     // link.href = `${filename}`; // Update this URL based on your API endpoint for downloading CSV
     link.setAttribute("download", filename);
     // link.setAttribute("target", "_blank");
