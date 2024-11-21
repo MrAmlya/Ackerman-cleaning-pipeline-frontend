@@ -16,3 +16,23 @@
 pre {
   font-size: 14px;
 }
+
+.btn-custom {
+  background-color: #154734;
+  color: #fff;
+  border: none;
+}
+
+.btn-custom:hover {
+  background-color: #0e8b5b; 
+  color: #fff;
+  border:black
+}
+
+a {
+  color: #C95100;
+}
+
+a:hover {
+  color: #154734;
+}
