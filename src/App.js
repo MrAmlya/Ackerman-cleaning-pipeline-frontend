@@ -1,110 +1,4 @@
-// import React, { useState } from "react";
-// import axios from "axios";
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import './App.css'; 
-// import Loader from './components/loader';
-
-// const App = () => {
-//   const [inputCategory, setInputCategory] = useState("");
-//   const [inputString, setInputString] = useState("");
-//   const [result, setResult] = useState(null);
-//   const [loading, setLoading] = useState(false); // Loading state
-//   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5000";
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setLoading(true); // Show loader when the form is submitted
-
-//     try {
-//       const response = await axios.post(`${API_BASE_URL}/api/process-data`, {
-//         inputCategory,
-//         inputString,
-//       });
-//       setResult(response.data);
-//     } catch (error) {
-//       console.error("Error fetching data:", error);
-//     }
-
-//     setLoading(false); // Hide loader when data is received
-//   };
-
-//   // Function to download CSV
-//   const downloadCSV = (filename) => {
-//     if (!filename) {
-//       console.error("Filename is required to download the CSV.");
-//       return;
-//     }
-
-//     const link = document.createElement("a");
-//     link.href = `${API_BASE_URL}/${filename}`; // Update this URL based on your API endpoint for downloading CSV
-//     // link.href = `${filename}`; // Update this URL based on your API endpoint for downloading CSV
-//     link.setAttribute("download", filename);
-//     // link.setAttribute("target", "_blank");
-//     document.body.appendChild(link);
-//     link.click();
-//     document.body.removeChild(link);
-//   };
-
-//   return (
-//     <div className="App container py-5">
-//       <h1 className="text-center mb-4">Data Extraction Tool</h1>
-      
-//       <form onSubmit={handleSubmit} className="bg-light p-4 shadow-sm rounded">
-//         <div className="mb-3">
-//           <label htmlFor="categorySelect" className="form-label">Select Category:</label>
-//           <select
-//             id="categorySelect"
-//             className="form-select"
-//             value={inputCategory}
-//             onChange={(e) => setInputCategory(e.target.value)}
-//             required>
-//             <option value="">Choose...</option>
-//             <option value="P">Place</option>
-//             <option value="Y">Year</option>
-//             <option value="C">Cause of Death</option>
-//             <option value="L">Last Name</option>
-//           </select>
-//         </div>
-
-//         <div className="mb-3">
-//           <label htmlFor="inputString" className="form-label">Enter Items (comma separated):</label>
-//           <input
-//             type="text"
-//             className="form-control"
-//             id="inputString"
-//             value={inputString}
-//             onChange={(e) => setInputString(e.target.value)}
-//             required
-//           />
-//         </div>
-
-//         <button type="submit" className="btn btn-primary w-100" disabled={loading}>Submit</button>
-//       </form>
-
-//       {loading ? ( 
-//         // Display Loader while the request is processing
-//         <Loader />
-//       ) : (
-//         result && (
-//           <div className="result-container mt-4">
-//             <h2 className="text-center">Result</h2>
-//             <pre className="bg-light p-3 rounded shadow-sm">{JSON.stringify(result, null, 2)}</pre>
-//             <button
-//               className="btn btn-secondary mt-3"
-//               onClick={() => downloadCSV(result.download_url)}>Download CSV
-//             </button>
-//             {/* <button onClick={downloadCSV} className="btn btn-success mt-3">Download CSV</button> */}
-//           </div>
-//         )
-//       )}
-//     </div>
-//   );
-// };
-
-// export default App;
-
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'; 
@@ -113,12 +7,42 @@ import Footer from './components/footer';
 import Navbar from './components/navbar';
 
 const App = () => {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [inputCategory, setInputCategory] = useState("");
   const [inputString, setInputString] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false); // Loading state
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5000";
 
+  // Check for session on load
+  useEffect(() => {
+    const sessionId = localStorage.getItem("session_id");
+    if (sessionId) {
+      setAuthenticated(true);
+    }
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/login`, { password });
+      if (response.data.status === "success") {
+        localStorage.setItem("session_id", response.data.session_id);
+        setAuthenticated(true);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Login failed. Please try again.");
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("session_id");
+    setAuthenticated(false);
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Show loader when the form is submitted
@@ -151,9 +75,38 @@ const App = () => {
     document.body.removeChild(link);
   };
 
+  if (!authenticated) {
+    return (
+      <div className="">
+      <Navbar authenticated={authenticated}/>
+      <div className="App container py-5">
+          <div className="login-container container py-5">
+          <h2 className="text-center mb-4">Login</h2>
+          <form onSubmit={handleLogin} className="bg-light p-4 shadow-sm rounded">
+            <div className="mb-3">
+              <label htmlFor="password" className="form-label">Enter Password:</label>
+              <input
+                type="password"
+                id="password"
+                className="form-control"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p className="text-danger">{error}</p>}
+            <button type="submit" className="btn btn-custom w-100">Login</button>
+          </form>
+        </div>
+      </div>
+      <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="">
-      <Navbar />
+      <Navbar authenticated={authenticated} handleLogout={handleLogout} />
       <div className="container">
       <h1 className="p-4 mb-2" style={{ color: "#C95100"}}>Record Search Tool for The Central Database of Shoah Victims' Names</h1>
       
@@ -173,8 +126,6 @@ const App = () => {
     <div className="App container py-5">
       {/* <h1 className="text-center mb-4">Record Search Tool for The Central Database of Shoah Victims' Names</h1> */}
       
-      
-
       <form onSubmit={handleSubmit} className="bg-light p-4 shadow-sm rounded">
         <h2 className="text-center mb-3">Ackerman Record Search Tool</h2>
         <div className="mb-3">
