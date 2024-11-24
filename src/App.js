@@ -31,6 +31,7 @@ const App = () => {
       if (response.data.status === "success") {
         localStorage.setItem("session_id", response.data.session_id);
         setAuthenticated(true);
+        resetAppState(); // Reset the app state
       } else {
         setError(response.data.message);
       }
@@ -42,16 +43,48 @@ const App = () => {
   const handleLogout = () => {
     localStorage.removeItem("session_id");
     setAuthenticated(false);
+    resetAppState(); // Reset the app state
   };
+
+  // const handleLogout = async () => {
+  //   try {
+  //     const sessionId = localStorage.getItem("session_id");
+  //     if (!sessionId) {
+  //       console.error("No session ID found.");
+  //       return;
+  //     }
+  
+  //     const response = await axios.post(`${API_BASE_URL}/api/logout`, {}, {
+  //       headers: { Authorization: sessionId },
+  //     });
+  
+  //     if (response.data.status === "success") {
+  //       localStorage.removeItem("session_id"); // Clear session ID
+  //       resetAppState(); // Reset the app state
+  //       console.log("Logged out successfully.");
+  //     } else {
+  //       console.error(response.data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("Logout failed:", error.response?.data || error.message);
+  //   }
+  // };
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Show loader when the form is submitted
+    const sessionId = localStorage.getItem("session_id");
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/process-data`, {
-        inputCategory,
-        inputString,
-      });
+      const response = await axios.post(`${API_BASE_URL}/api/process-data`, 
+        { inputCategory, inputString },
+        {
+          headers: {
+            Authorization: sessionId, // Include the session ID
+          },
+        });
       setResult(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -60,20 +93,49 @@ const App = () => {
     setLoading(false); // Hide loader when data is received
   };
 
-  // Function to download CSV
-  const downloadCSV = (filename) => {
+  const downloadCSV = async (filename) => {
     if (!filename) {
       console.error("Filename is required to download the CSV.");
       return;
     }
-
-    const link = document.createElement("a");
-    link.href = `${API_BASE_URL}/${filename}`; // Update this URL based on your API endpoint for downloading CSV
-    link.setAttribute("download", filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  
+    const sessionId = localStorage.getItem("session_id"); // Retrieve the session ID
+    if (!sessionId) {
+      console.error("User is not authenticated. Session ID is missing.");
+      return;
+    }
+  
+    try {
+      // Fetch the file from the server
+      const response = await axios.get(`${API_BASE_URL}/${filename}`, {
+        headers: {
+          Authorization: sessionId, // Include the session ID in the header
+        },
+        responseType: "blob", // Ensure the response is treated as a file
+      });
+  
+      // Create a blob URL and trigger download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename); // Set the filename for download
+      document.body.appendChild(link);
+      link.click();
+      link.remove(); // Clean up the DOM
+      console.log(`File ${filename} downloaded successfully.`);
+    } catch (error) {
+      console.error("Error downloading the file:", error.response?.data || error.message);
+    }
   };
+
+  const resetAppState = () => {
+    setInputCategory(""); // Reset form fields
+    setInputString("");   // Reset form input
+    setResult(null);      // Clear output/result
+    setPassword("");
+  };
+  
+  
 
   if (!authenticated) {
     return (
