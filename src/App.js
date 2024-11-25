@@ -16,12 +16,42 @@ const App = () => {
   const [loading, setLoading] = useState(false); // Loading state
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:5000";
 
+
+  // useEffect(() => {
+  //   const sessionId = localStorage.getItem("session_id");
+  //   if (sessionId) {
+  //     setAuthenticated(true);
+  //   }
+  // }, []);
+
+  
   // Check for session on load
   useEffect(() => {
-    const sessionId = localStorage.getItem("session_id");
-    if (sessionId) {
-      setAuthenticated(true);
-    }
+    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
+    let timeoutId;
+  
+    const resetTimer = () => {
+      clearTimeout(timeoutId); // Clear the existing timeout
+      timeoutId = setTimeout(() => {
+        localStorage.removeItem("session_id"); // Clear session ID after timeout
+        setAuthenticated(false); // Set authenticated state to false
+        console.log("Session expired due to inactivity.");
+      }, INACTIVITY_TIMEOUT);
+    };
+  
+    // Attach event listeners to track user activity
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keypress", resetTimer);
+  
+    // Start the initial timer
+    resetTimer();
+  
+    return () => {
+      // Cleanup event listeners and timeout on unmount
+      clearTimeout(timeoutId);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("keypress", resetTimer);
+    };
   }, []);
 
   const handleLogin = async (e) => {
