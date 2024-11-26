@@ -29,6 +29,7 @@ const App = () => {
   useEffect(() => {
     const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
     let timeoutId;
+    setError(""); // Clear any previous error message
   
     const resetTimer = () => {
       clearTimeout(timeoutId); // Clear the existing timeout
@@ -56,6 +57,7 @@ const App = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(""); 
     try {
       const response = await axios.post(`${API_BASE_URL}/api/login`, { password });
       if (response.data.status === "success") {
@@ -118,9 +120,24 @@ const App = () => {
       setResult(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
-    }
 
-    setLoading(false); // Hide loader when data is received
+      if (error.response) {
+        // Handle HTTP errors with response data
+        if (error.response.status === 401) {
+          setError("Unauthorized. Please log in again."); // Handle 401 Unauthorized error
+        } else {
+          setError(`An error occurred: ${error.response.data.message || 'Please try again later.'}`); // Handle other HTTP errors
+        }
+      } else if (error.request) {
+        // Handle errors when no response is received
+        setError("No response from server. Please try again later.");
+      } else {
+        // Handle any other errors (e.g., network issues, axios setup errors)
+        setError(`Error: ${error.message}`);
+      }
+    } finally {
+      setLoading(false); // Hide loader when data is received or if an error occurs
+    }
   };
 
   const downloadCSV = async (filename) => {
@@ -163,6 +180,7 @@ const App = () => {
     setInputString("");   // Reset form input
     setResult(null);      // Clear output/result
     setPassword("");
+    setError("");
   };
   
   
@@ -265,6 +283,11 @@ const App = () => {
           </div>
         )
       )}
+      {error && (
+          <div className="error-message mt-4">
+            <p style={{ color: "red", textAlign: "center" }}>{error}</p>
+          </div>
+        )}
     </div>
     <Footer />
     </div>
