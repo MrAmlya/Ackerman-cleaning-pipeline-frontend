@@ -65,6 +65,7 @@ Contributions are welcome! If you'd like to contribute to this project, please f
 This project is licensed under the MIT License.
 
 ### Acknowledgments
-This project was developed by [Your Name] as part of the Ackerman Center's Digital Studies of the Holocaust project.
+This project was developed by Amol Bhadane as part of the Ackerman Center's Digital Studies of the Holocaust project.
+#### contact -> asbhadane21@gmail.com
 
 ### Note: Make sure to replace your-username and your-repo-name with your actual GitHub username and repository name.
