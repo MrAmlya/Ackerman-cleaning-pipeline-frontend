@@ -1,5 +1,9 @@
 import React from "react";
 
+/**
+ * Footer component that displays the Ackerman Center for Holocaust Studies' website link
+ * and copyright information. The footer is styled with a custom color scheme.
+ */
 const Footer = () => {
   return (
     <footer className="text-light py-3 mt-5 text-center" style={{ color: "#154734", backgroundColor: "#154734"}}>

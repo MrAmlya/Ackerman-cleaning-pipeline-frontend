@@ -55,6 +55,12 @@ const App = () => {
     };
   }, []);
 
+  /**
+   * Handles the login form submission. Submits a POST request to the API
+   * with the user-provided password. If the response is successful, sets the
+   * authenticated state to true and resets the app state.
+   * @param {Event} e - The form submission event
+   */
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(""); 
@@ -72,6 +78,10 @@ const App = () => {
     }
   };
 
+  /**
+   * Handles the logout button click. Removes the session ID from local storage,
+   * sets the authenticated state to false, and resets the app state.
+   */
   const handleLogout = () => {
     localStorage.removeItem("session_id");
     setAuthenticated(false);
@@ -104,6 +114,12 @@ const App = () => {
 
 
 
+  /**
+   * Handles the form submission. Sends a POST request to the server with the inputCategory and inputString,
+   * and sets the result state to the response data. If an error occurs, it is caught and the error state is set.
+   * Finally, it hides the loader when the data is received or if an error occurs.
+   * @param {Event} e - The submit event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true); // Show loader when the form is submitted
@@ -140,6 +156,12 @@ const App = () => {
     }
   };
 
+  /**
+   * Downloads a CSV file from the server.
+   * @param {string} filename - The name of the file to download.
+   * @returns {Promise<void>} - A promise that resolves when the file is downloaded.
+   * @throws {Error} - If the file cannot be downloaded (e.g., if the user is not authenticated).
+   */
   const downloadCSV = async (filename) => {
     if (!filename) {
       console.error("Filename is required to download the CSV.");
@@ -175,6 +197,11 @@ const App = () => {
     }
   };
 
+  /**
+   * Resets the state of the application.
+   * This function is used to clear the form fields, reset the input, and clear the output/result.
+   * It is called when the user logs out or when the user wants to start a new search.
+   */
   const resetAppState = () => {
     setInputCategory(""); // Reset form fields
     setInputString("");   // Reset form input

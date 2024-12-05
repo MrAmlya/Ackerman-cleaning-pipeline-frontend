@@ -1,5 +1,15 @@
 import React from "react";
 
+/**
+ * Renders a Navbar component with a brand logo and a collapsible navigation menu.
+ * 
+ * @param {Object} props - The properties passed to the component.
+ * @param {boolean} props.authenticated - Indicates whether the user is authenticated.
+ * @param {Function} props.handleLogout - Function to handle user logout when the logout button is clicked.
+ * 
+ * The Navbar displays a brand logo, and if the user is authenticated, it shows a logout button.
+ * The navigation menu is collapsible for smaller screens.
+ */
 const Navbar = ({ authenticated, handleLogout }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm p-3 mb-5 bg-white rounded">

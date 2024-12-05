@@ -1,6 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 
+/**
+ * A functional component that renders a loader.
+ * It uses styled-components for styling and displays a loader with a margin-top of 100px.
+ */
 const Loader = () => {
   return (
     <StyledWrapper>
